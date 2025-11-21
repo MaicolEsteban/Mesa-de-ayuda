@@ -1,0 +1,85 @@
+<div class="dashboard-container">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <img src="assets/images/compensar-logo.png" alt="Compensar" style="max-width: 80px; height: auto;">
+      <h1>Mesa Digital</h1>
+    </div>
+    <div class="nav-right">
+      <span>{{ usuario?.nombre }}</span>
+      <button (click)="handleLogout()" class="btn-logout">🚪 Salir</button>
+    </div>
+  </nav>
+
+  <!-- Contenido -->
+  <div class="content">
+    <!-- Header con botón -->
+    <div class="dashboard-header">
+      <h2>Mis Solicitudes</h2>
+      <button (click)="irACrearSolicitud()" class="btn btn-create">
+        ➕ Crear Nueva Solicitud
+      </button>
+    </div>
+
+    <!-- Métricas -->
+    <div class="metrics-section">
+      <div class="metric-card">
+        <p class="metric-label">Total Solicitudes</p>
+        <p class="metric-value">{{ metricas?.total || 0 }}</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">En Revisión</p>
+        <p class="metric-value">{{ metricas?.en_revision || 0 }}</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Resueltas</p>
+        <p class="metric-value">{{ metricas?.resueltas || 0 }}</p>
+      </div>
+    </div>
+
+    <!-- Solicitudes -->
+    <div class="solicitudes-section">
+      <h3>Mis Solicitudes</h3>
+
+      <div *ngIf="solicitudesCargadas && solicitudes.length > 0" class="solicitudes-list">
+        <div *ngFor="let solicitud of solicitudes" class="solicitud-card">
+          <div class="solicitud-header">
+            <h4>{{ solicitud.codigo }}</h4>
+            <span class="estado-badge" [style.backgroundColor]="getEstadoColor(solicitud.estado)">
+              {{ solicitud.estado }}
+            </span>
+          </div>
+          <p class="solicitud-tipo">{{ solicitud.tipoSolicitud | lowercase }}</p>
+          <p class="solicitud-fecha">📅 {{ solicitud.fechaRadicacion | date: 'dd/MM/yyyy' }}</p>
+          
+          <!-- ⭐ NUEVO: Mostrar horas restantes -->
+          <div class="tiempo-restante" *ngIf="solicitud.horasRestantes">
+            <span [ngClass]="{'alerta': solicitud.horasRestantes < 24, 'critica': solicitud.horasRestantes < 12}">
+              ⏱️ {{ solicitud.horasRestantes }}h restantes
+            </span>
+          </div>
+          
+          <!-- Si está vencida -->
+          <div class="vencida-badge" *ngIf="solicitud.vencida">
+            ⚠️ VENCIDA
+          </div>
+
+          <button (click)="verDetalles(solicitud.codigo)" class="btn btn-sm btn-primary">
+            Ver Detalles
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="solicitudesCargadas && solicitudes.length === 0" class="no-solicitudes">
+        <p>No tienes solicitudes aún. ¡Crea una nueva!</p>
+        <button (click)="irACrearSolicitud()" class="btn btn-primary">
+          ➕ Crear Solicitud
+        </button>
+      </div>
+
+      <div *ngIf="!solicitudesCargadas" class="loading">
+        Cargando solicitudes...
+      </div>
+    </div>
+  </div>
+</div>

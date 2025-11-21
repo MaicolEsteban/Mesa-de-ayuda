@@ -1,0 +1,140 @@
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #FF8C00, #FF6F00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-box {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 28rem;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.logo-container img {
+  max-width: 150px;
+  height: auto;
+}
+
+h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  text-align: center;
+  color: #FF8C00;
+  margin-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #FF8C00;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #FFB74D;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: #fffbf7;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #FF8C00;
+  box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.15);
+  background: white;
+}
+
+button {
+  width: 100%;
+  background: linear-gradient(135deg, #FF8C00 0%, #FF6F00 100%);
+  color: white;
+  font-weight: 700;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 140, 0, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-box {
+  background-color: #FFEBEE;
+  border: 2px solid #FF5252;
+  border-radius: 6px;
+  padding: 0.75rem;
+  color: #C62828;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.demo-info {
+  text-align: center;
+  color: #666;
+  font-size: 0.875rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #FFE0B2;
+}
+
+@media (max-width: 480px) {
+  .login-box {
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .logo-container img {
+    max-width: 120px;
+  }
+}

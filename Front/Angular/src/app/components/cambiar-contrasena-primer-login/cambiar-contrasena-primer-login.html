@@ -1,0 +1,73 @@
+<div class="cambiar-contrasena-container">
+  <div class="card">
+    <div class="card-header">
+      <h1>🔐 Cambiar Contraseña</h1>
+      <p class="subtitle">Primera vez que inicia sesión - Debe cambiar su contraseña</p>
+    </div>
+
+    <div class="card-body">
+      <p class="info">
+        ¡Bienvenido <strong>{{ usuario?.nombre }}</strong>! 
+        Por seguridad, debe cambiar su contraseña temporal.
+      </p>
+
+      <form (ngSubmit)="cambiarContrasena()">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email"
+            [value]="usuario?.email" 
+            readonly
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="nueva-contrasena">Nueva Contraseña *</label>
+          <input 
+            type="password" 
+            id="nueva-contrasena"
+            [(ngModel)]="nuevaContrasena"
+            name="nuevaContrasena"
+            placeholder="Ingresa una contraseña segura"
+            required
+            class="form-control">
+          <small>Mínimo 6 caracteres</small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmar-contrasena">Confirmar Contraseña *</label>
+          <input 
+            type="password" 
+            id="confirmar-contrasena"
+            [(ngModel)]="confirmarContrasena"
+            name="confirmarContrasena"
+            placeholder="Confirma tu contraseña"
+            required
+            class="form-control">
+        </div>
+
+        <div *ngIf="error" class="alert alert-error">
+          {{ error }}
+        </div>
+
+        <div *ngIf="success" class="alert alert-success">
+          ✅ Contraseña cambiada exitosamente. Redirigiendo...
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="submit"
+            [disabled]="loading"
+            class="btn btn-primary btn-block">
+            {{ loading ? 'Procesando...' : '✓ Cambiar Contraseña' }}
+          </button>
+        </div>
+      </form>
+
+      <div class="form-footer">
+        <button (click)="volver()" class="btn-link">← Volver al login</button>
+      </div>
+    </div>
+  </div>
+</div>

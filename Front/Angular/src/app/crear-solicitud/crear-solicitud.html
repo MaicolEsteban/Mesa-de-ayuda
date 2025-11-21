@@ -1,0 +1,104 @@
+<div class="crear-solicitud-container">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h1>Mesa Digital</h1>
+    <div class="nav-right">
+      <span>{{ usuario?.nombre }}</span>
+      <button (click)="volver()" class="btn-back">← Volver</button>
+    </div>
+  </nav>
+
+  <!-- Contenido -->
+  <div class="content">
+    <div class="form-container">
+      <h2>Crear Nueva Solicitud</h2>
+
+      <!-- Mensaje de éxito -->
+      <div *ngIf="success" class="alert alert-success">
+        ✅ Solicitud creada exitosamente. Redirigiendo...
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="error" class="alert alert-error">
+        ❌ {{ error }}
+      </div>
+
+      <form (ngSubmit)="crearSolicitud()" class="form">
+        <!-- Código -->
+        <div class="form-group">
+          <label for="codigo">Código de Solicitud (Generado automáticamente)</label>
+          <input
+            type="text"
+            id="codigo"
+            [(ngModel)]="codigo"
+            name="codigo"
+            disabled
+            class="form-input"
+          />
+          <small>Este código se genera automáticamente</small>
+        </div>
+
+        <!-- Tipo de Solicitud -->
+        <div class="form-group">
+          <label for="tipo">Tipo de Solicitud *</label>
+          <select
+            id="tipo"
+            [(ngModel)]="tipoSolicitud"
+            name="tipoSolicitud"
+            class="form-input"
+            required
+          >
+            <option value="">-- Selecciona un tipo --</option>
+            <option *ngFor="let tipo of tiposDisponibles" [value]="tipo">
+              {{ tipo | lowercase }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label for="descripcion">Descripción de la Solicitud *</label>
+          <textarea
+            id="descripcion"
+            [(ngModel)]="descripcion"
+            name="descripcion"
+            class="form-input"
+            rows="6"
+            placeholder="Describe tu solicitud detalladamente..."
+            required
+          ></textarea>
+          <small>Mínimo 10 caracteres. Caracteres: {{ descripcion.length }}</small>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            [disabled]="loading"
+            class="btn btn-primary"
+          >
+            {{ loading ? 'Creando...' : 'Crear Solicitud' }}
+          </button>
+          <button
+            type="button"
+            (click)="volver()"
+            class="btn btn-secondary"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+
+      <!-- Info -->
+      <div class="info-box">
+        <h4>ℹ️ Información</h4>
+        <ul>
+          <li>Tu solicitud será revisada por el personal administrativo</li>
+          <li>Recibirás actualizaciones sobre el estado de tu solicitud</li>
+          <li>Puedes ver todas tus solicitudes en el dashboard</li>
+          <li>El código de solicitud te identificará en todo el proceso</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

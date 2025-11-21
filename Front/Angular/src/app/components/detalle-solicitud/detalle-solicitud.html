@@ -1,0 +1,211 @@
+<div class="detalle-container">
+  <nav class="navbar">
+    <h1>Mesa Digital</h1>
+    <div class="nav-right">
+      <span>{{ usuario?.nombre }}</span>
+      <button (click)="volver()" class="btn-back">← Volver</button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <div *ngIf="loading" class="loading">Cargando solicitud...</div>
+    <div *ngIf="!loading && error" class="alert alert-error">❌ {{ error }}</div>
+    <div *ngIf="!loading && solicitud" class="detalle-content">
+      <div class="header">
+        <div class="header-left">
+          <h2>{{ solicitud?.codigo }}</h2>
+          <p class="tipo">{{ solicitud?.tipoSolicitud | lowercase }}</p>
+        </div>
+        <div class="header-right">
+          <button (click)="descargarPDF()" class="btn btn-pdf">📥 PDF</button>
+          <span class="estado" [style.backgroundColor]="getEstadoColor(solicitud?.estado)">
+            {{ solicitud?.estado }}
+          </span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h3>Información General</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Solicitante:</label>
+            <p>{{ solicitud?.nombreEstudiante }}</p>
+          </div>
+          <div class="info-item">
+            <label>Email:</label>
+            <p>{{ solicitud?.emailEstudiante }}</p>
+          </div>
+          <div class="info-item">
+            <label>Cédula:</label>
+            <p>{{ solicitud?.cedulaEstudiante }}</p>
+          </div>
+          <div class="info-item">
+            <label>Responsable:</label>
+            <p>{{ solicitud?.emailResponsable || 'Sin asignar' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Fecha de Radicación:</label>
+            <p>{{ solicitud?.fechaRadicacion | date: 'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Días Transcurridos:</label>
+            <p>{{ solicitud?.diasTranscurridos || 0 }} días</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== AGREGA ESTO EN detalle-solicitud.html ========== -->
+
+<!-- DESPUÉS DE LA SECCIÓN "Información General", agrega: -->
+
+<div class="tiempo-limite-section">
+  <h3>⏱️ Límite de Tiempo</h3>
+  <div class="tiempo-info">
+    <div class="tiempo-item">
+      <label>Fecha Límite de Solución:</label>
+      <p>{{ solicitud?.fechaLimiteSolucion | date: 'dd/MM/yyyy HH:mm' }}</p>
+    </div>
+    <div class="tiempo-item">
+      <label>Horas Restantes:</label>
+      <p [ngClass]="{'alerta': solicitud?.horasRestantes < 24, 'critica': solicitud?.horasRestantes < 12}">
+        {{ solicitud?.horasRestantes || 0 }} horas
+      </p>
+    </div>
+    <div class="tiempo-item" *ngIf="solicitud?.vencida">
+      <label>Estado:</label>
+      <p class="vencida">⚠️ VENCIDA - Solicitud fuera de plazo</p>
+    </div>
+  </div>
+  
+  <!-- Barra de progreso -->
+  <div class="tiempo-progress">
+    <div class="progress-bar" [style.width]="calcularPorcentajeRestante() + '%'"></div>
+  </div>
+</div>
+
+<!-- ========== AGREGA ESTO EN dashboard.html ========== -->
+
+<!-- EN CADA TARJETA DE SOLICITUD, agrega: -->
+
+<div class="solicitud-card">
+  <!-- ... contenido existente ... -->
+  
+  <!-- ⭐ NUEVO: Mostrar horas restantes -->
+  <div class="tiempo-restante" *ngIf="solicitud.horasRestantes">
+    <span [ngClass]="{'alerta': solicitud.horasRestantes < 24, 'critica': solicitud.horasRestantes < 12}">
+      ⏱️ {{ solicitud.horasRestantes }}h restantes
+    </span>
+  </div>
+  
+  <!-- Si está vencida -->
+  <div class="vencida-badge" *ngIf="solicitud.vencida">
+    ⚠️ VENCIDA
+  </div>
+</div>
+
+      <!-- SECCIÓN ADMIN: ASIGNACIÓN Y CAMBIO DE ESTADO -->
+      <div *ngIf="esAdmin" class="admin-actions-section">
+        <h3>🔧 Acciones Administrativas</h3>
+        <div class="admin-actions-grid">
+          <!-- Asignar Responsable -->
+          <div class="action-item">
+            <label>Asignar Responsable:</label>
+            <button (click)="asignarResponsable()" [disabled]="enviandoAsignacion" class="btn btn-warning">
+              {{ enviandoAsignacion ? 'Asignando...' : '👤 Asignar' }}
+            </button>
+            <p class="current-value">Actual: {{ solicitud?.emailResponsable || 'No asignado' }}</p>
+          </div>
+
+          <!-- Cambiar Estado -->
+          <div class="action-item">
+            <label>Cambiar Estado:</label>
+            <select [(ngModel)]="nuevoEstado" class="form-input">
+              <option value="">-- Selecciona estado --</option>
+              <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
+            </select>
+            <button (click)="cambiarEstado()" [disabled]="enviandoEstado || !nuevoEstado" class="btn btn-success">
+              {{ enviandoEstado ? 'Actualizando...' : '✓ Actualizar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="description-section">
+        <h3>Descripción</h3>
+        <div class="description-box">{{ solicitud?.descripcion }}</div>
+      </div>
+
+      <div class="timeline-section">
+        <h3>📅 Historial de Cambios</h3>
+        <div *ngIf="eventos.length > 0" class="timeline">
+          <div *ngFor="let evento of eventos" class="timeline-item" [ngClass]="evento.tipoEvento | lowercase">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <p class="timeline-tipo">
+                <strong>{{ evento?.tipoEvento | lowercase }}</strong>
+              </p>
+              <p class="timeline-descripcion">{{ evento?.descripcion }}</p>
+              <p class="timeline-meta">
+                👤 <strong>{{ evento?.usuario }}</strong> - 📅 {{ evento?.fechaEvento | date: 'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="eventos.length === 0" class="no-eventos">
+          ℹ️ No hay eventos registrados aún
+        </div>
+      </div>
+
+      <div class="comentario-section">
+        <h3>💬 Agregar Comentario</h3>
+        <div class="comentario-form">
+          <textarea 
+            [(ngModel)]="comentario" 
+            placeholder="Escribe tu comentario aquí..." 
+            rows="4" 
+            class="form-input">
+          </textarea>
+          <button 
+            (click)="agregarComentario()" 
+            [disabled]="enviadoComentario || !comentario.trim()" 
+            class="btn btn-primary">
+            {{ enviadoComentario ? 'Enviando...' : '📤 Enviar Comentario' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="calificacion-section" *ngIf="solicitud?.estado === 'RESUELTA'">
+        <h3>⭐ Calificar Solicitud</h3>
+        <div class="calificacion-form">
+          <div class="rating">
+            <label>¿Qué tan satisfecho estás?</label>
+            <div class="stars">
+              <button 
+                *ngFor="let star of [1,2,3,4,5]" 
+                (click)="calificacion = star" 
+                [class.active]="star <= calificacion" 
+                class="star">
+                ⭐
+              </button>
+            </div>
+            <p *ngIf="calificacion > 0" class="rating-text">
+              {{ calificacion }} de 5 estrellas
+            </p>
+          </div>
+          <textarea 
+            [(ngModel)]="comentarioCalificacion" 
+            placeholder="Cuéntanos tu experiencia..." 
+            rows="3" 
+            class="form-input">
+          </textarea>
+          <button 
+            (click)="calificarSolicitud()" 
+            [disabled]="enviadoCalificacion || calificacion === 0" 
+            class="btn btn-primary">
+            {{ enviadoCalificacion ? 'Enviando...' : '✓ Enviar Calificación' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

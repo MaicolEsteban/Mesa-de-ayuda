@@ -1,0 +1,187 @@
+<div class="panel-admin-container">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h1>Mesa Digital - Panel Administrativo</h1>
+    <div class="nav-right">
+      <span>{{ usuario?.nombre }}</span>
+      <button (click)="handleLogout()" class="btn-logout">Salir</button>
+    </div>
+  </nav>
+
+  <!-- Contenido -->
+  <div class="content">
+    <div *ngIf="loading" class="loading">Cargando solicitudes...</div>
+
+    <div *ngIf="!loading && error" class="alert alert-error">
+      ❌ {{ error }}
+    </div>
+
+    <div *ngIf="!loading && !error" class="admin-content">
+      <!-- Filtros -->
+      <div class="filtros-section">
+        <div class="filtros-header">
+          <h2>Filtros</h2>
+          <!-- BOTÓN DESCARGAR REPORTE PDF -->
+          <button (click)="descargarReportePDF()" class="btn btn-pdf-report" title="Descargar reporte en PDF">
+            📥 Descargar Reporte PDF
+          </button>
+        </div>
+        <div class="filtros-grid">
+          <!-- Búsqueda -->
+          <div class="filtro-item">
+            <label>Búsqueda (código, nombre, email)</label>
+            <input
+              type="text"
+              [(ngModel)]="filtroBusqueda"
+              (input)="onFiltroChange()"
+              placeholder="Buscar..."
+              class="form-input"
+            />
+          </div>
+
+          <!-- Estado -->
+          <div class="filtro-item">
+            <label>Estado</label>
+            <select
+              [(ngModel)]="filtroEstado"
+              (change)="onFiltroChange()"
+              class="form-input"
+            >
+              <option value="">-- Todos --</option>
+              <option *ngFor="let estado of estados" [value]="estado">
+                {{ estado }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Tipo -->
+          <div class="filtro-item">
+            <label>Tipo de Solicitud</label>
+            <select
+              [(ngModel)]="filtroTipo"
+              (change)="onFiltroChange()"
+              class="form-input"
+            >
+              <option value="">-- Todos --</option>
+              <option *ngFor="let tipo of tipos" [value]="tipo">
+                {{ tipo | lowercase }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Botón Limpiar -->
+          <div class="filtro-item">
+            <label>&nbsp;</label>
+            <button (click)="limpiarFiltros()" class="btn btn-secondary">
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Solicitudes -->
+      <div class="solicitudes-section">
+        <h2>Solicitudes ({{ solicitudesFiltradas.length }} encontradas)</h2>
+
+        <div *ngIf="solicitudesFiltradas.length > 0" class="table-container">
+          <table class="solicitudes-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Solicitante</th>
+                <th>Email</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Responsable</th>
+                <th>Fecha Radicación</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sol of solicitudesFiltradas" class="solicitud-row">
+                <td class="codigo">
+                  <strong>{{ sol.codigo }}</strong>
+                </td>
+                <td>{{ sol.nombreEstudiante }}</td>
+                <td class="email">{{ sol.emailEstudiante }}</td>
+                <td>{{ sol.tipoSolicitud | lowercase }}</td>
+                <td>
+                  <span
+                    class="estado-badge"
+                    [style.backgroundColor]="getEstadoColor(sol.estado)"
+                  >
+                    {{ sol.estado }}
+                  </span>
+                </td>
+                <td>
+                  <span class="responsable">
+                    {{ sol.emailResponsable || 'Sin asignar' }}
+                  </span>
+                </td>
+                <td class="fecha">
+                  {{ sol.fechaRadicacion | date: 'dd/MM/yyyy' }}
+                </td>
+                <td class="acciones">
+                  <button
+                    (click)="verDetalles(sol.codigo)"
+                    class="btn btn-sm btn-info"
+                    title="Ver detalles"
+                  >
+                    👁️
+                  </button>
+                  <button
+                    (click)="asignarResponsable(sol.codigo)"
+                    class="btn btn-sm btn-warning"
+                    title="Asignar responsable"
+                  >
+                    👤
+                  </button>
+                  <button
+                    (click)="cambiarEstado(sol.codigo)"
+                    class="btn btn-sm btn-success"
+                    title="Cambiar estado"
+                  >
+                    ➜
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="solicitudesFiltradas.length === 0" class="no-solicitudes">
+          No hay solicitudes que cumplan con los filtros
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="estadisticas-section">
+        <h2>Resumen</h2>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <p class="stat-label">Total</p>
+            <p class="stat-value">{{ solicitudes.length }}</p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-label">Radicadas</p>
+            <p class="stat-value">
+              {{ getCountByEstado('RADICADA') }}
+            </p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-label">Sin Asignar</p>
+            <p class="stat-value">
+              {{ getCountSinAsignar() }}
+            </p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-label">Resueltas</p>
+            <p class="stat-value">
+              {{ getCountByEstado('RESUELTA') }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
